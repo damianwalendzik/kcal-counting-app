@@ -1,21 +1,12 @@
 from rest_framework import serializers
-from .models import Product, Vitamins, Minerals
+from .models import Product, Vitamins, Minerals, UserProfile
 import datetime
 
-class ProductSerializer( serializers.ModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = [
-            'name',
-            'created_by',
-            'timestamp',
-            'carbohydrates',
-            'fats',
-            'proteins',
-            'fibre',
-            'alcohol',
-            'kcal',
+        model = Product
+        fields = '__all__'
 
-        ]
     def create(validated_data):
         return Product.objects.create(**validated_data)
     
@@ -28,4 +19,30 @@ class ProductSerializer( serializers.ModelSerializer):
         instance.fibre = validated_data.get('fibre', instance.fibre)
         instance.alcohol = validated_data.get('alcohol', instance.alcohol)
 
+class UserProfileSerializer( serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
 
+        fields = [
+            'user',
+            'gender',
+            'weight',
+            'height',
+            'age',
+            'activity_level',
+            'weight_goal',
+            'daily_kcal_requirement',
+        ]
+
+class FoodConsumptionSerializer( serializers.ModelSerializer):
+    class Meta:
+        fields = [
+            'user',
+            'product',
+            'amount_consumed',
+            'timestamp',
+            'date_consumed',
+            'consumed_kcal',
+            'calories_consumed_on_date',
+            'calories_left',
+        ]

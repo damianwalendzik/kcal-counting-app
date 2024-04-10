@@ -1,9 +1,15 @@
 from django.db import models
 from django.conf import settings
 from datetime import datetime
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.apps import apps
 
 User = settings.AUTH_USER_MODEL
-
+###HOW TO ASSIGN USER TO MODEL:
+#from django.apps import apps
+#apps.get_models()
+#Search for app with User
+#apps.get_models()[<key>]
 class UserProfile(models.Model):
     GENDER_CHOICES = [
         ('male', 'Male'),
@@ -25,25 +31,24 @@ class UserProfile(models.Model):
     gender = models.CharField(choices=GENDER_CHOICES, max_length=6)
     weight = models.FloatField()
     height = models.FloatField()
-    age=models.PositiveIntegerField(max=120)
+    age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(120)])
     activity_level = models.FloatField(choices=ACTIVITY_LEVEL_CHOICES)
     weight_goal = models.CharField(choices=WEIGHT_GOAL_CHOICES, max_length=8)
 
     def daily_kcal_requirement(self):
-        if self.weight_goal == "Lose":
+        if self.weight_goal == "lose":
             goal_multiplier = 0.8
-        elif self.weight_goal == "Maintain":
+        elif self.weight_goal == "maintain":
             goal_multiplier = 1
         else:
             goal_multiplier = 1.2
 
-        if self.sex == 'Male':
+        if self.gender == 'male':
             bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age + 5
-        if self.sex == 'Female':
+        if self.gender == 'female':
             bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age - 161
 
         kcal_requirement = bmr * goal_multiplier * self.activity_level
-
         return kcal_requirement
 
 class Product(models.Model):
@@ -69,7 +74,7 @@ class Product(models.Model):
 class FoodConsumption(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount_consumed = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
     date_consumed = models.DateField(default=datetime.now)
@@ -83,7 +88,7 @@ class FoodConsumption(models.Model):
         consumptions = cls.objects.filter(user=user, date_consumed=date)
         total_calories_consumed = sum(consumption.consumed_kcal for consumption in consumptions)
         return total_calories_consumed
-    
+
     def calories_left(self):
         user_profile = UserProfile.objects.get(user=self.user)
         daily_calorie_requirement = user_profile.daily_kcal_requirement()
