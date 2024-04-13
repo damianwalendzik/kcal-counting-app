@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Vitamins, Minerals, UserProfile
+from .models import Product, Vitamins, Minerals, UserProfile, FoodConsumption
 import datetime
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -36,13 +36,5 @@ class UserProfileSerializer( serializers.ModelSerializer):
 
 class FoodConsumptionSerializer( serializers.ModelSerializer):
     class Meta:
-        fields = [
-            'user',
-            'product',
-            'amount_consumed',
-            'timestamp',
-            'date_consumed',
-            'consumed_kcal',
-            'calories_consumed_on_date',
-            'calories_left',
-        ]
+        model = FoodConsumption
+        fields = '__all__'

@@ -3,7 +3,6 @@ from django.conf import settings
 from datetime import datetime
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.apps import apps
-
 User = settings.AUTH_USER_MODEL
 ###HOW TO ASSIGN USER TO MODEL:
 #from django.apps import apps
