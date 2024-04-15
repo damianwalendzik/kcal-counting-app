@@ -51,6 +51,7 @@ class DailyFoodConsumptionListView(generics.ListAPIView):
         date_str = kwargs.get('date')
         user = get_object_or_404(User, username=username)
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        UserProfile.objects.update(date=date)
         queryset = FoodConsumption.objects.filter(user=user, date_consumed=date)
         serializer = self.get_serializer(queryset, many=True)
 
