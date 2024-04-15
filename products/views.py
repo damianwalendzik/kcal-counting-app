@@ -29,13 +29,17 @@ product_API_view = ProductAPIView.as_view()
 class UserProfileAPIView(generics.ListAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-
+    lookup_field='username'
     def get(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        if pk is not None:
-            product = self.get_object()
-            serializer = self.get_serializer(product)
-            return Response(serializer.data)
+        username = kwargs.get('username')
+        date = datetime.today()  # Get the current date
+        queryset = UserProfile.objects.filter(user__username=username)
+        serializer = self.get_serializer(queryset, many=True)
+        # Calculate calories consumed for each user for the given date
+        # for profile in queryset:
+        #     profile.calories_consumed = profile.calories_consumed_on_date(date)
+
+        return Response(serializer.data)
 
 profile_view = UserProfileAPIView.as_view()
 

@@ -9,6 +9,15 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer( serializers.ModelSerializer):
+    calories_consumed_on_date = serializers.SerializerMethodField()
+    #calories_left = serializers.SerializerMethodField()
+
+    def get_calories_consumed_on_date(self, obj):
+        return obj.calories_consumed_on_date
+
+    def get_calories_left(self, obj):
+        return obj.calories_left
+    
     class Meta:
         model = UserProfile
 
@@ -21,12 +30,20 @@ class UserProfileSerializer( serializers.ModelSerializer):
             'activity_level',
             'weight_goal',
             'daily_kcal_requirement',
+            'weight_loss_pace',
+            'calories_consumed_on_date',
+            'date',
+            'calories_left',
         ]
 
+    
+
+    
 class FoodConsumptionSerializer(serializers.ModelSerializer):
-    user = UserProfileSerializer(many=False)
+    #user = UserProfileSerializer(many=False)
     product_name = serializers.SerializerMethodField()
     consumed_kcal = serializers.SerializerMethodField()
+    slug_field = 'user'
     class Meta:
         model = FoodConsumption
         fields = [
@@ -37,8 +54,6 @@ class FoodConsumptionSerializer(serializers.ModelSerializer):
             'timestamp',
             'date_consumed',
             'consumed_kcal',
-            #'calories_consumed_on_date',
-            #'calories_left',
         ]
 
     def get_product_name(self, obj):
@@ -46,4 +61,7 @@ class FoodConsumptionSerializer(serializers.ModelSerializer):
     
     def get_consumed_kcal(self, obj):
         return obj.consumed_kcal
+    
+
+    
         

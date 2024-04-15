@@ -26,6 +26,29 @@ class UserProfile(models.Model):
         (1.725, 'Very active (hard exercise/sports 6-7 days a week)'),
         (1.9, 'Extra active (very hard exercise/sports & physical job)')
     ]
+    WEIGHT_CHANGE_PACE_CHOICES = [
+        (-1.0, '-1.0'),
+        (-0.9, '-0.9'),
+        (-0.8, '-0.8'),
+        (-0.7, '-0.7'),
+        (-0.6, '-0.6'),
+        (-0.5, '-0.5'),
+        (-0.4, '-0.4'),
+        (-0.3, '-0.3'),
+        (-0.2, '-0.2'),
+        (-0.1, '-0.1'),
+        (0.0, '0.0'),
+        (0.1, '0.1'),
+        (0.2, '0.2'),
+        (0.3, '0.3'),
+        (0.4, '0.4'),
+        (0.5, '0.5'),
+        (0.6, '0.6'),
+        (0.7, '0.7'),
+        (0.8, '0.8'),
+        (0.9, '0.9'),
+        (1.0, '1.0'),
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=6)
     weight = models.FloatField()
@@ -33,7 +56,10 @@ class UserProfile(models.Model):
     age = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(120)])
     activity_level = models.FloatField(choices=ACTIVITY_LEVEL_CHOICES)
     weight_goal = models.CharField(choices=WEIGHT_GOAL_CHOICES, max_length=8)
+    weight_loss_pace = models.FloatField(choices=WEIGHT_CHANGE_PACE_CHOICES, default=0)
+    date=models.DateField(default=datetime.now)
 
+    @property
     def daily_kcal_requirement(self):
         if self.weight_goal == "lose":
             goal_multiplier = 0.8
@@ -49,6 +75,20 @@ class UserProfile(models.Model):
 
         kcal_requirement = bmr * goal_multiplier * self.activity_level
         return kcal_requirement
+    
+    @property
+    def calories_consumed_on_date(self):
+        user_meals = FoodConsumption.objects.filter(user=self.user)
+        counter = 0
+        for meal in user_meals:
+            if meal.date_consumed == self.date:
+                counter += meal.consumed_kcal
+        print(counter)
+        return counter
+
+    def calories_left(self):
+        calories_left = self.daily_kcal_requirement - self.calories_consumed_on_date
+        return calories_left
 
 class Product(models.Model):
     '''
@@ -81,20 +121,6 @@ class FoodConsumption(models.Model):
     @property
     def consumed_kcal(self):
         return self.product.kcal() * self.amount_consumed / 100
-
-    @classmethod
-    def calories_consumed_on_date(cls, user, date):
-        consumptions = cls.objects.filter(user=user, date_consumed=date)
-        total_calories_consumed = sum(consumption.consumed_kcal for consumption in consumptions)
-        return total_calories_consumed
-
-
-    def calories_left(self):
-        user_profile = UserProfile.objects.get(user=self.user)
-        daily_calorie_requirement = user_profile.daily_kcal_requirement()
-        date_consumed = self.date_consumed
-        total_calories_consumed = FoodConsumption.calories_consumed_on_date(self.user, date_consumed)
-        return daily_calorie_requirement - total_calories_consumed
 
 
 class Vitamins(models.Model):
