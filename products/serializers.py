@@ -7,17 +7,6 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
-    def create(validated_data):
-        return Product.objects.create(**validated_data)
-    
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.timestamp = validated_data.get('timestamp', instance.timestamp)
-        instance.carbohydrates = validated_data.get('carbohydrates', instance.carbohydrates)
-        instance.fats = validated_data.get('fats', instance.fats)
-        instance.proteins = validated_data.get('proteins', instance.proteins)
-        instance.fibre = validated_data.get('fibre', instance.fibre)
-        instance.alcohol = validated_data.get('alcohol', instance.alcohol)
 
 class UserProfileSerializer( serializers.ModelSerializer):
     class Meta:
@@ -34,7 +23,27 @@ class UserProfileSerializer( serializers.ModelSerializer):
             'daily_kcal_requirement',
         ]
 
-class FoodConsumptionSerializer( serializers.ModelSerializer):
+class FoodConsumptionSerializer(serializers.ModelSerializer):
+    user = UserProfileSerializer(many=False)
+    product_name = serializers.SerializerMethodField()
+    consumed_kcal = serializers.SerializerMethodField()
     class Meta:
         model = FoodConsumption
-        fields = '__all__'
+        fields = [
+            'user',
+            'product',
+            'product_name',
+            'amount_consumed',
+            'timestamp',
+            'date_consumed',
+            'consumed_kcal',
+            #'calories_consumed_on_date',
+            #'calories_left',
+        ]
+
+    def get_product_name(self, obj):
+        return obj.product.name
+    
+    def get_consumed_kcal(self, obj):
+        return obj.consumed_kcal
+        

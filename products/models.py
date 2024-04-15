@@ -88,6 +88,7 @@ class FoodConsumption(models.Model):
         total_calories_consumed = sum(consumption.consumed_kcal for consumption in consumptions)
         return total_calories_consumed
 
+
     def calories_left(self):
         user_profile = UserProfile.objects.get(user=self.user)
         daily_calorie_requirement = user_profile.daily_kcal_requirement()
