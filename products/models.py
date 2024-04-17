@@ -3,6 +3,8 @@ from django.conf import settings
 from datetime import datetime
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.apps import apps
+from django.db.models import ExpressionWrapper, F, FloatField, Sum
+
 User = settings.AUTH_USER_MODEL
 ###HOW TO ASSIGN USER TO MODEL:
 #from django.apps import apps
@@ -78,18 +80,16 @@ class UserProfile(models.Model):
     
     @property
     def calories_consumed_on_date(self):
-        user_meals = FoodConsumption.objects.filter(user=self.user)
-        counter = 0
-        for meal in user_meals:
-            if meal.date_consumed == self.date:
-                counter += meal.consumed_kcal
-        print(counter)
-        return counter
+        consumed_kcal = FoodConsumption.objects.filter(user=self.user, date_consumed=self.date).aggregate(
+            total=Sum(ExpressionWrapper(F('product__total_kcal') * F('amount_consumed')/100,output_field=FloatField())))['total'] or 0
+        return consumed_kcal
+
 
     def calories_left(self):
         calories_left = self.daily_kcal_requirement - self.calories_consumed_on_date
         return calories_left
 
+    
 class Product(models.Model):
     '''
     All macros and micros have to be scaled to 100g of given Product.
@@ -102,13 +102,8 @@ class Product(models.Model):
     proteins = models.FloatField()
     fibre = models.FloatField()
     alcohol = models.FloatField(null=True, blank=True)
-    
-    def kcal(self):
-        kcal_value = 4*(self.carbohydrates + self.proteins) + 9*self.fats
-        self.kcal = kcal_value
-        self.save()
-        return kcal_value
-    
+    total_kcal = models.FloatField() # 4*(proteins + carbohydrates) + 7*alcohol + 9*fats
+
 
 class FoodConsumption(models.Model):
 
@@ -120,8 +115,8 @@ class FoodConsumption(models.Model):
 
     @property
     def consumed_kcal(self):
-        return self.product.kcal() * self.amount_consumed / 100
-
+        return self.product.total_kcal * self.amount_consumed / 100
+    
 
 class Vitamins(models.Model):
 

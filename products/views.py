@@ -55,7 +55,6 @@ class DailyFoodConsumptionListView(generics.ListAPIView):
         UserProfile.objects.update(date=date)
         queryset = FoodConsumption.objects.filter(user=user, date_consumed=date)
         serializer = self.get_serializer(queryset, many=True)
-
         return Response(serializer.data)
 
 
