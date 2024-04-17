@@ -5,44 +5,78 @@ from rest_framework import generics
 from rest_framework.response import Response
 from datetime import datetime
 from django.contrib.auth.models import User
+from rest_framework import status
 
-
-class ProductAPIView(generics.ListAPIView):
+class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
     def get(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-
-        if pk is not None:
-            product = self.get_object()
-            serializer = self.get_serializer(product)
-            return Response(serializer.data)
-        
-        else:
-            posts = self.get_queryset()
-            serializer = self.get_serializer(posts, many=True)
-            print(serializer.data)
-            return Response(serializer.data)
+        posts = self.get_queryset()
+        serializer = self.get_serializer(posts, many=True)
+        print(serializer.data)
+        return Response(serializer.data)
 
 
-product_API_view = ProductAPIView.as_view()
+product_list_API_view = ProductListAPIView.as_view()
 
-class UserProfileAPIView(generics.ListAPIView):
+class RetrieveUpdateDestroyProductAPIView(generics.RetrieveUpdateDestroyAPIView):
 
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
+retrieve_update_destroy_product_view = RetrieveUpdateDestroyProductAPIView.as_view()
+
+from rest_framework import status
+
+class UserProfileAPIView(generics.RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    lookup_field='username'
+    lookup_field = 'user'
 
-    def get(self, request, *args, **kwargs):
-        username = kwargs.get('username')
+    def retrieve(self, request, *args, **kwargs):
+        username = kwargs.get('user')
         queryset = UserProfile.objects.filter(user__username=username)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    def put(self, request, *args, **kwargs):
+        username = kwargs.get('user')
+        profile = UserProfile.objects.filter(user__username=username).first()
+        if not profile:
+            return Response({"message": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get the existing values for weight, height, and age from the database
+        weight = profile.weight
+        height = profile.height
+        age = profile.age
+        
+        # Merge the existing values with the request data
+        data = request.data.copy()
+        data.update({'weight': weight, 'height': height, 'age': age})
+        
+        serializer = self.get_serializer(profile, data=data, partial=True)  # Use partial=True to allow partial updates
+        serializer.is_valid(raise_exception=True)
+        serializer.save() 
+        
+        return Response(serializer.data)
+
 profile_view = UserProfileAPIView.as_view()
 
-class DailyFoodConsumptionListView(generics.ListAPIView):
+class FoodConsumptionListAPIView(generics.ListAPIView):
 
     queryset = FoodConsumption.objects.all()
     serializer_class = FoodConsumptionSerializer
@@ -58,4 +92,5 @@ class DailyFoodConsumptionListView(generics.ListAPIView):
         return Response(serializer.data)
 
 
-daily_consumption_view = DailyFoodConsumptionListView.as_view()
+daily_consumption_list_create_view = FoodConsumptionListAPIView.as_view()
+

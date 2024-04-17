@@ -34,6 +34,7 @@ class UserProfileSerializer( serializers.ModelSerializer):
             'calories_consumed_on_date',
             'date',
             'calories_left',
+            'email',
         ]
 
     
