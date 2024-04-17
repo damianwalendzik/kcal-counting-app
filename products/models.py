@@ -11,6 +11,7 @@ User = settings.AUTH_USER_MODEL
 #apps.get_models()
 #Search for app with User
 #apps.get_models()[<key>]
+
 class UserProfile(models.Model):
     GENDER_CHOICES = [
         ('male', 'Male'),
@@ -51,6 +52,7 @@ class UserProfile(models.Model):
         (0.9, '0.9'),
         (1.0, '1.0'),
     ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=6)
     weight = models.FloatField()
@@ -60,6 +62,7 @@ class UserProfile(models.Model):
     weight_goal = models.CharField(choices=WEIGHT_GOAL_CHOICES, max_length=8)
     weight_loss_pace = models.FloatField(choices=WEIGHT_CHANGE_PACE_CHOICES, default=0)
     date=models.DateField(default=datetime.now)
+    email=models.EmailField()
 
     @property
     def daily_kcal_requirement(self):
