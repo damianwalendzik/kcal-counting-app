@@ -1,7 +1,7 @@
-from django.contrib import admin
 from django.urls import path
-from .views import product_list_API_view, profile_view, daily_consumption_list_create_view, retrieve_update_destroy_product_view        
+from .views import index, product_list_API_view, profile_view, daily_consumption_list_create_view, retrieve_update_destroy_product_view        
 urlpatterns = [
+    path('', index, name='index'),
     path('products/', product_list_API_view),
     path('products/<int:pk>/', retrieve_update_destroy_product_view),
     path('products/<int:pk>/delete/', retrieve_update_destroy_product_view),

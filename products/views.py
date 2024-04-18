@@ -6,7 +6,13 @@ from rest_framework.response import Response
 from datetime import datetime
 from django.contrib.auth.models import User
 from rest_framework import status
+from rest_framework.renderers import TemplateHTMLRenderer
 
+def index(request):
+
+    return render(request, 'products/index.html', {
+        'items':'Hello world'
+    })
 class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -46,12 +52,17 @@ class UserProfileAPIView(generics.RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'user'
+    renderer_classes = [TemplateHTMLRenderer]
 
     def retrieve(self, request, *args, **kwargs):
         username = kwargs.get('user')
         queryset = UserProfile.objects.filter(user__username=username)
+        print(queryset[0].user)
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        print(serializer.data[0])
+        print(serializer.data[0]['user'])
+        user_profile_data = serializer.data[0]
+        return Response({'user_profile': user_profile_data}, template_name="products/profile.html")
 
     def put(self, request, *args, **kwargs):
         username = kwargs.get('user')

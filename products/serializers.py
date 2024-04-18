@@ -10,6 +10,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer( serializers.ModelSerializer):
     calories_consumed_on_date = serializers.SerializerMethodField()
+
     #calories_left = serializers.SerializerMethodField()
 
     def get_calories_consumed_on_date(self, obj):
