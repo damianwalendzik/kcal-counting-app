@@ -7,7 +7,6 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
-
 def index(request):
 
     return render(request, 'products/index.html', {
@@ -91,6 +90,8 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
 
     queryset = FoodConsumption.objects.all()
     serializer_class = FoodConsumptionSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'products/foodconsumption.html'
 
     def get(self, request, *args, **kwargs):
         username = kwargs.get('username')
@@ -100,7 +101,17 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
         UserProfile.objects.update(date=date)
         queryset = FoodConsumption.objects.filter(user=user, date_consumed=date)
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        food_consumption_data_list = serializer.data
+        calories_eaten = UserProfile.objects.filter(user=user)[0].calories_consumed_on_date
+        calories_left = UserProfile.objects.filter(user=user)[0].calories_left
+        context = {'food_consumption_list': food_consumption_data_list, 
+                   'user': user, 
+                   'calories_eaten': calories_eaten,
+                   'date': date,
+                   'calories_left': calories_left
+                   }
+
+        return Response(context)
 
 
 daily_consumption_list_create_view = FoodConsumptionListAPIView.as_view()

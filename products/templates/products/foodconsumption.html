@@ -1,0 +1,21 @@
+{% extends 'products/base.html' %}
+{% block title %}
+Welcome
+{% endblock %}
+
+{% block content %}
+<h1>Daily meal view</h1>
+<ul>
+    {% for food_consumption in food_consumption_list %}
+    <strong>Product name</strong>:{{ food_consumption.product_name }}<br>
+    <strong>amount consumed</strong>:{{ food_consumption.amount_consumed }}<br>
+    <strong>date consumed</strong>:{{ food_consumption.date_consumed }}<br>
+    <strong>kcal consumed</strong>:{{ food_consumption.consumed_kcal }}<br><br>
+
+
+
+    {% endfor %}
+    {{ user }} ate {{ calories_eaten }} kcal on {{ date }}.<br>
+    {{ user }} have {{ calories_left }} calories left to eat.<br>
+</ul>
+{% endblock %}

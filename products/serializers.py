@@ -42,7 +42,7 @@ class UserProfileSerializer( serializers.ModelSerializer):
 
     
 class FoodConsumptionSerializer(serializers.ModelSerializer):
-    user_profile = UserProfileSerializer(source='user.userprofile', read_only=True)
+    #user_profile = UserProfileSerializer(source='user.userprofile', read_only=True)
 
     #user = UserProfileSerializer(many=False)
     product_name = serializers.SerializerMethodField()
@@ -51,7 +51,6 @@ class FoodConsumptionSerializer(serializers.ModelSerializer):
         model = FoodConsumption
         fields = [
             'user',
-            'user_profile',
             'product',
             'product_name',
             'amount_consumed',
