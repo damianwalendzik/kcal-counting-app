@@ -30,27 +30,13 @@ class UserProfile(models.Model):
         (1.9, 'Extra active (very hard exercise/sports & physical job)')
     ]
     WEIGHT_CHANGE_PACE_CHOICES = [
-        (-1.0, '-1.0'),
-        (-0.9, '-0.9'),
-        (-0.8, '-0.8'),
-        (-0.7, '-0.7'),
-        (-0.6, '-0.6'),
-        (-0.5, '-0.5'),
-        (-0.4, '-0.4'),
-        (-0.3, '-0.3'),
-        (-0.2, '-0.2'),
-        (-0.1, '-0.1'),
-        (0.0, '0.0'),
-        (0.1, '0.1'),
-        (0.2, '0.2'),
-        (0.3, '0.3'),
-        (0.4, '0.4'),
-        (0.5, '0.5'),
-        (0.6, '0.6'),
-        (0.7, '0.7'),
-        (0.8, '0.8'),
-        (0.9, '0.9'),
-        (1.0, '1.0'),
+        (-1.0, '-1.0'), (-0.9, '-0.9'), (-0.8, '-0.8'), 
+        (-0.7, '-0.7'), (-0.6, '-0.6'), (-0.5, '-0.5'), 
+        (-0.4, '-0.4'), (-0.3, '-0.3'), (-0.2, '-0.2'), 
+        (-0.1, '-0.1'), (0.0, '0.0'), (0.1, '0.1'), 
+        (0.2, '0.2'), (0.3, '0.3'), (0.4, '0.4'), 
+        (0.5, '0.5'), (0.6, '0.6'), (0.7, '0.7'), 
+        (0.8, '0.8'), (0.9, '0.9'), (1.0, '1.0'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -63,6 +49,9 @@ class UserProfile(models.Model):
     weight_loss_pace = models.FloatField(choices=WEIGHT_CHANGE_PACE_CHOICES, default=0)
     date=models.DateField(default=datetime.now)
     email=models.EmailField()
+
+    def __str__(self):
+        return self.user.username
 
     @property
     def daily_kcal_requirement(self):
@@ -106,6 +95,9 @@ class Product(models.Model):
     fibre = models.FloatField()
     alcohol = models.FloatField(null=True, blank=True)
     total_kcal = models.FloatField() # 4*(proteins + carbohydrates) + 7*alcohol + 9*fats
+    
+    def __str__(self):
+        return self.name
 
 
 class FoodConsumption(models.Model):

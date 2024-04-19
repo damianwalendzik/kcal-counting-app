@@ -5,17 +5,22 @@ Welcome
 
 {% block content %}
 <h1>Daily meal view</h1>
-<ul>
-    {% for food_consumption in food_consumption_list %}
-    <strong>Product name</strong>:{{ food_consumption.product_name }}<br>
-    <strong>amount consumed</strong>:{{ food_consumption.amount_consumed }}<br>
-    <strong>date consumed</strong>:{{ food_consumption.date_consumed }}<br>
-    <strong>kcal consumed</strong>:{{ food_consumption.consumed_kcal }}<br><br>
+<div style="margin-bottom: 20px;"></div>
+    <ul style="margin-bottom: 20px;"></ul>
+        {% for food_consumption in food_consumption_list %}
+        <strong>Product name</strong>:{{ food_consumption.product_name }}<br>
+        <strong>amount consumed</strong>:{{ food_consumption.amount_consumed }}<br>
+        <strong>date consumed</strong>:{{ food_consumption.date_consumed }}<br>
+        <strong>kcal consumed</strong>:{{ food_consumption.consumed_kcal }}<br><br>
 
 
 
-    {% endfor %}
-    {{ user }} ate {{ calories_eaten }} kcal on {{ date }}.<br>
-    {{ user }} have {{ calories_left }} calories left to eat.<br>
-</ul>
+        {% endfor %}
+        {{ user }} ate {{ calories_eaten }} kcal on {{ date }}.<br>
+        {{ user }} have {{ calories_left }} calories left to eat.<br>
+    </ul>
+</div>
+<div class="space-x-6">
+    <a href="{% url 'create-meal' user date %}" class="px-6 py-3 text-lg font-semibold bg-green-500 text-white rounded-xl hover:bg-teal-400">Add Product</a>
+  </div>
 {% endblock %}

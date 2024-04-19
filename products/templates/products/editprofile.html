@@ -1,0 +1,37 @@
+{% extends 'products/base.html' %}
+{% block title %}
+Welcome
+{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-8">
+  <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    {% csrf_token %}
+    <div class="mb-4">
+      {{ form.as_p }}
+    </div>
+    <div class="flex items-center justify-between">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* Style for editable fields */
+  input[type="text"], textarea {
+    background-color: #4f5153; /* Light gray background */
+    border: 1px solid #cbd5e0; /* Light border */
+    padding: 0.5rem;
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Include padding and border in width */
+    border-radius: 0.25rem; /* Rounded corners */
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Smooth transition */
+  }
+
+  /* Style for focused editable fields */
+  input[type="text"]:focus, textarea:focus {
+    border-color: #4a90e2; /* Blue border when focused */
+    background-color: #fff; /* White background when focused */
+  }
+</style>
+{% endblock %}

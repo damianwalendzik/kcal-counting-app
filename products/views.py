@@ -7,6 +7,8 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
+from .forms import UserProfileForm, FoodConsumptionForm
+from django.utils import timezone
 def index(request):
 
     return render(request, 'products/index.html', {
@@ -47,44 +49,49 @@ retrieve_update_destroy_product_view = RetrieveUpdateDestroyProductAPIView.as_vi
 
 from rest_framework import status
 
-class UserProfileAPIView(generics.RetrieveUpdateAPIView):
+class UserProfileAPIView(generics.ListAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'user'
     renderer_classes = [TemplateHTMLRenderer]
 
-    def retrieve(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         username = kwargs.get('user')
         queryset = UserProfile.objects.filter(user__username=username)
-        print(queryset[0].user)
         serializer = self.get_serializer(queryset, many=True)
-        print(serializer.data[0])
-        print(serializer.data[0]['user'])
         user_profile_data = serializer.data[0]
-        return Response({'user_profile': user_profile_data}, template_name="products/profile.html")
-
-    def put(self, request, *args, **kwargs):
-        username = kwargs.get('user')
-        profile = UserProfile.objects.filter(user__username=username).first()
-        if not profile:
-            return Response({"message": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Get the existing values for weight, height, and age from the database
-        weight = profile.weight
-        height = profile.height
-        age = profile.age
-        
-        # Merge the existing values with the request data
-        data = request.data.copy()
-        data.update({'weight': weight, 'height': height, 'age': age})
-        
-        serializer = self.get_serializer(profile, data=data, partial=True)  # Use partial=True to allow partial updates
-        serializer.is_valid(raise_exception=True)
-        serializer.save() 
-        
-        return Response(serializer.data)
+        context = {'user_profile': user_profile_data, 'username': username}
+        return Response(context, template_name="products/profile.html", status=status.HTTP_200_OK)
 
 profile_view = UserProfileAPIView.as_view()
+
+class UpdateDeleteProfileAPIView(generics.RetrieveUpdateDestroyAPIView):
+    lookup_field = 'user'
+    queryset = UserProfile.objects.all()
+    serializer_class = FoodConsumptionSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        username = kwargs.get('user')
+        queryset = UserProfile.objects.filter(user__username=username)
+        instance = get_object_or_404(queryset)
+        print("INSTANCE")
+        print(instance)
+        form = UserProfileForm(instance=instance)
+        return Response({'form': form}, template_name="products/editprofile.html")
+
+
+    def post(self, request, *args, **kwargs):
+        username = kwargs.get('user')
+        queryset = UserProfile.objects.filter(user__username=username)
+        instance = get_object_or_404(queryset)
+        form = UserProfileForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return Response({'success': True}, template_name="products/success.html")
+
+
+update_delete_profile_API_view = UpdateDeleteProfileAPIView.as_view()
 
 class FoodConsumptionListAPIView(generics.ListAPIView):
 
@@ -114,5 +121,40 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
         return Response(context)
 
 
-daily_consumption_list_create_view = FoodConsumptionListAPIView.as_view()
+daily_consumption_list_view = FoodConsumptionListAPIView.as_view()
+
+class FoodConsumptionCreateAPIView(generics.CreateAPIView):
+    queryset = FoodConsumption.objects.all()
+    serializer_class = FoodConsumptionSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'products/addmeal.html'
+
+    def get(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        user = get_object_or_404(User, username=username)
+        date_str = kwargs.get('date')
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        form = FoodConsumptionForm(initial=
+                                   {'user': self.request.user, 
+                                    'timestamp': timezone.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                                    'date_consumed': date})
+        return Response({'form': form, 'username': username, 'date': date}, template_name="products/addmeal.html")
+
+    def post(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        user = get_object_or_404(User, username=username)
+        date_str = kwargs.get('date')
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        
+        form = FoodConsumptionForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user = user
+            instance.date_consumed = date
+            instance.save()
+            return Response({'success': True}, template_name="products/success.html")
+        else:
+            return Response({'error': 'Form data is not valid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+food_consumption_create_view = FoodConsumptionCreateAPIView.as_view()
 

@@ -28,3 +28,11 @@ class UserProfileForm(forms.ModelForm):
             'weight_loss_pace',
             'email',
         ]
+
+class FoodConsumptionForm(forms.ModelForm):
+    class Meta:
+        model = FoodConsumption
+        fields = [
+            'product',
+            'amount_consumed',
+        ]
