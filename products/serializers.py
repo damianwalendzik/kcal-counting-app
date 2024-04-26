@@ -50,6 +50,7 @@ class FoodConsumptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodConsumption
         fields = [
+            'pk',
             'user',
             'product',
             'product_name',

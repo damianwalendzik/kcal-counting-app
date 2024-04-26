@@ -5,17 +5,23 @@ Welcome
 
 {% block content %}
 <h1>Daily meal view</h1>
-<div style="margin-bottom: 20px;"></div>
-    <ul style="margin-bottom: 20px;"></ul>
-        {% for food_consumption in food_consumption_list %}
-        <strong>Product name</strong>:{{ food_consumption.product_name }}<br>
+<div class="bg-blue-500" style="margin-bottom: 20px;"></div>
+    <ul class="bg-blue-500" style="margin-bottom: 20px;"></ul>
+    {% for food_consumption in food_consumption_list %}
+    <div style="margin-bottom: 20px;">
+        <strong>Product name</strong>:<a href="{% url 'update-meal' username=user date=date pk=food_consumption.pk %}" class="px-6 py-3 text-lg font-semibold bg-yellow-500 text-white rounded-xl hover:bg-orange-400">{{ food_consumption.product_name }}</a><br>
         <strong>amount consumed</strong>:{{ food_consumption.amount_consumed }}<br>
         <strong>date consumed</strong>:{{ food_consumption.date_consumed }}<br>
         <strong>kcal consumed</strong>:{{ food_consumption.consumed_kcal }}<br><br>
+        <form method="post" action="{% url 'delete-meal' username=user date=date pk=food_consumption.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="px-6 py-3 text-lg font-semibold bg-red-500 text-white rounded-xl hover:bg-red-400">Delete</button>
+        </form>
+    </div>
+    {% endfor %}
 
 
-
-        {% endfor %}
         {{ user }} ate {{ calories_eaten }} kcal on {{ date }}.<br>
         {{ user }} have {{ calories_left }} calories left to eat.<br>
     </ul>

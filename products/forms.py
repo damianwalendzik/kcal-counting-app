@@ -36,3 +36,10 @@ class FoodConsumptionForm(forms.ModelForm):
             'product',
             'amount_consumed',
         ]
+
+class FoodEditForm(forms.ModelForm):
+    class Meta:
+        model = FoodConsumption
+        fields = [
+            'amount_consumed',
+        ]

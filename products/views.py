@@ -7,7 +7,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
-from .forms import UserProfileForm, FoodConsumptionForm
+from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm
 from django.utils import timezone
 def index(request):
 
@@ -103,6 +103,7 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         username = kwargs.get('username')
         date_str = kwargs.get('date')
+        pk = kwargs.get('pk')
         user = get_object_or_404(User, username=username)
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         UserProfile.objects.update(date=date)
@@ -115,9 +116,10 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
                    'user': user, 
                    'calories_eaten': calories_eaten,
                    'date': date,
-                   'calories_left': calories_left
+                   'calories_left': calories_left,
+                   'pk':pk,
                    }
-
+        print(context)
         return Response(context)
 
 
@@ -145,7 +147,6 @@ class FoodConsumptionCreateAPIView(generics.CreateAPIView):
         user = get_object_or_404(User, username=username)
         date_str = kwargs.get('date')
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        
         form = FoodConsumptionForm(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
@@ -158,3 +159,53 @@ class FoodConsumptionCreateAPIView(generics.CreateAPIView):
 
 food_consumption_create_view = FoodConsumptionCreateAPIView.as_view()
 
+
+class FoodConsumptionUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = FoodConsumption.objects.all()
+    serializer_class = FoodConsumptionSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'products/addmeal.html'
+
+    def get(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        user = get_object_or_404(User, username=username)
+        date_str = kwargs.get('date')
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        pk = kwargs.get('pk')
+        product = get_object_or_404(FoodConsumption, pk=pk).product
+        form = FoodEditForm(initial=
+                                   {'user': self.request.user, 
+                                    'timestamp': timezone.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                                    'date_consumed': date,
+                                    "pk": pk,
+                                    'product': product})
+        return Response({'form': form, 'username': username, 'date': date}, template_name="products/addmeal.html")
+
+    def post(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        user = get_object_or_404(User, username=username)
+        date_str = kwargs.get('date')
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        pk = kwargs.get('pk')
+        product = get_object_or_404(FoodConsumption, pk=pk).product
+
+        # Retrieve the existing FoodConsumption instance from the database
+        instance = self.get_object()
+        print(instance)
+        form = FoodEditForm(request.POST, instance=instance)  # Pass instance to update existing record
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user = user
+            instance.product = product
+            instance.date_consumed = date
+            instance.save()
+            return Response({'success': True}, template_name="products/success.html")
+        else:
+            return Response({'error': 'Form data is not valid.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+food_consumption_update_destroy_view = FoodConsumptionUpdateDestroyAPIView.as_view()
