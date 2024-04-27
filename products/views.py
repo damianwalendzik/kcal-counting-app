@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Product, UserProfile, FoodConsumption
 from .serializers import ProductSerializer, UserProfileSerializer, FoodConsumptionSerializer
 from rest_framework import generics
@@ -7,8 +7,25 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
-from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm
+from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm, UserCreationForm
 from django.utils import timezone
+
+def register(request):
+    form = UserCreationForm()
+    
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('my-login')
+
+    context = {'registerForm': form}
+    return render(request, 'products/user-registration.html', context=context)
+
+def my_login():
+    pass
+
+
 def index(request):
 
     return render(request, 'products/index.html', {

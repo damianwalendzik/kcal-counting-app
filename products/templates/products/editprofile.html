@@ -4,8 +4,8 @@ Welcome
 {% endblock %}
 
 {% block content %}
-<div class="block-content-list">
-  <form method="post" class="block-content-list">
+<div class="block-content-profile">
+  <form method="post" class="block-content-form">
     {% csrf_token %}
     <div>
       {{ form.as_p }}

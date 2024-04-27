@@ -190,3 +190,38 @@ body {
     margin-right: 5px;
 }
 
+.block-content-form {
+    width: 100%;
+}
+
+.block-content-form div {
+    margin-bottom: 20px; /* Add margin between form fields */
+}
+
+.block-content-form input[type="text"],
+.block-content-form input[type="email"],
+.block-content-form select,
+.block-content-form textarea,
+.block-content-form input[type="number"] {
+    width: calc(100% - 20px); /* Adjust width with margin */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px; /* Add margin between form fields */
+    box-sizing: border-box; /* Ensure padding and border are included in width calculation */
+}
+
+.block-content-form button[type="submit"] {
+    background-color: #007bff; /* Example button color */
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.block-content-form button[type="submit"]:hover {
+    background-color: #0056b3; /* Example hover color */
+}
+
