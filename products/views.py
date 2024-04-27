@@ -60,6 +60,12 @@ class UserProfileAPIView(generics.ListAPIView):
         queryset = UserProfile.objects.filter(user__username=username)
         serializer = self.get_serializer(queryset, many=True)
         user_profile_data = serializer.data[0]
+        print(user_profile_data)
+        del(user_profile_data['user'])
+        del(user_profile_data['date'])
+        del(user_profile_data['calories_left'])
+        del(user_profile_data['calories_consumed_on_date'])
+
         context = {'user_profile': user_profile_data, 'username': username}
         return Response(context, template_name="products/profile.html", status=status.HTTP_200_OK)
 

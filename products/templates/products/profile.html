@@ -4,14 +4,15 @@ Welcome
 {% endblock %}
 
 {% block content %}
-<div>
-  <h1><strong>Username</strong>: {{ username }}</h1>
-  <ul style="margin-bottom: 20px;">
+<div class="block-content-profile">
+  <h1><strong>Profile</strong>: {{ username }}</h1>
     {% for key, value in user_profile.items %}
-      <li><strong>{{ key }}</strong>: {{ value }}</li>
+      <ul class="profile-items"><strong>{{ key }}</strong>: {{ value }}</ul>
     {% endfor %}
-  </ul>
-  <div class="space-x-6">
-    <a href="{% url 'edit_profile' user %}" class="px-6 py-3 text-lg font-semibold bg-red-500 text-white rounded-xl hover:bg-teal-400">Edit Profile</a>
-  </div>
+    <a href="{% url 'edit_profile' user %}" class="edit-link">
+      <button id="edit-Btn" class="edit-button">
+          <i class="fas fa-edit"></i> Edit Profile
+      </button>
+  </a>
+  
 {% endblock %}
