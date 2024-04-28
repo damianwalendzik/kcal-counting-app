@@ -1,14 +1,20 @@
 {% extends 'products/base.html' %}
+
 {% block title %}
 Welcome
 {% endblock %}
 
 {% block content %}
-<div class="block-content-profile">
-  <form method="post" class="block-content-form">
+<div>
+  <form method="post">
     {% csrf_token %}
     <div>
-      {{ registerForm.as_p }}
+      {{ loginform.username.label_tag }}
+      {{ loginform.username }}
+    </div>
+    <div>
+      {{ loginform.password.label_tag }}
+      {{ loginform.password }}
     </div>
     <div>
       <button type="submit">Submit</button>

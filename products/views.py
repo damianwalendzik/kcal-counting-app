@@ -7,14 +7,18 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
-from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm, UserCreationForm
+from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm, CreateUserForm, LoginForm
 from django.utils import timezone
+from django.contrib import auth
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import render, redirect
 
 def register(request):
-    form = UserCreationForm()
+    form = CreateUserForm()
     
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('my-login')
@@ -22,8 +26,23 @@ def register(request):
     context = {'registerForm': form}
     return render(request, 'products/user-registration.html', context=context)
 
-def my_login():
-    pass
+
+def my_login(request):
+    if request.method == "POST":
+        form = LoginForm(request.POST)  # Bind form to POST data
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = auth.authenticate(request, username=username, password=password)
+            if user is not None:
+                auth.login(request, user)
+                return redirect("profile_view")
+    else:
+        form = LoginForm()  # Initialize unbound form
+    
+    context = {"loginform": form}
+    return render(request, 'products/user-registration.html', context=context)
+
 
 
 def index(request):

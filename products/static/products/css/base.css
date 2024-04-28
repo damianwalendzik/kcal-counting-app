@@ -200,6 +200,7 @@ body {
 
 .block-content-form input[type="text"],
 .block-content-form input[type="email"],
+.block-content-form input[type="password"],
 .block-content-form select,
 .block-content-form textarea,
 .block-content-form input[type="number"] {
@@ -224,4 +225,3 @@ body {
 .block-content-form button[type="submit"]:hover {
     background-color: #0056b3; /* Example hover color */
 }
-
