@@ -29,21 +29,27 @@ def register(request):
 
 def my_login(request):
     if request.method == "POST":
+        print('post method dziala')
         form = LoginForm(request.POST)  # Bind form to POST data
+        print(form)
         if form.is_valid():
             username = form.cleaned_data.get('username')
+            print(username)
             password = form.cleaned_data.get('password')
+            print(password)
             user = auth.authenticate(request, username=username, password=password)
+            print(user)
             if user is not None:
                 auth.login(request, user)
                 return redirect("profile_view")
     else:
         form = LoginForm()  # Initialize unbound form
-    
     context = {"loginform": form}
-    return render(request, 'products/user-registration.html', context=context)
+    return render(request, 'products/index.html', context=context)
 
-
+def user_logout(request):
+    auth.logout(request)
+    return redirect("index")
 
 def index(request):
 
