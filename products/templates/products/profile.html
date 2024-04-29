@@ -9,7 +9,7 @@ Welcome
     {% for key, value in user_profile.items %}
       <ul class="profile-items"><strong>{{ key }}</strong>: {{ value }}</ul>
     {% endfor %}
-    <a href="{% url 'edit_profile' user %}" class="edit-link">
+    <a href="{% url 'edit_profile' username %}" class="edit-link">
       <button id="edit-Btn" class="edit-button">
           <i class="fas fa-edit"></i> Edit Profile
       </button>

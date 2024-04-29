@@ -13,6 +13,8 @@ from django.contrib import auth
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 def register(request):
     form = CreateUserForm()
@@ -32,6 +34,8 @@ def my_login(request):
         print('post method dziala')
         form = LoginForm(request.POST)  # Bind form to POST data
         print(form)
+        print(form.errors)
+
         if form.is_valid():
             username = form.cleaned_data.get('username')
             print(username)
@@ -40,12 +44,15 @@ def my_login(request):
             user = auth.authenticate(request, username=username, password=password)
             print(user)
             if user is not None:
+                print(user)
+                print("post przeszlo i user nie jest none")
                 auth.login(request, user)
                 return redirect("profile_view")
     else:
         form = LoginForm()  # Initialize unbound form
+        print(form.errors)
     context = {"loginform": form}
-    return render(request, 'products/index.html', context=context)
+    return render(request, 'products/my-login.html', context=context)
 
 def user_logout(request):
     auth.logout(request)
@@ -57,6 +64,7 @@ def index(request):
         'items':'Hello world'
     })
 class ProductListAPIView(generics.ListAPIView):
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -70,7 +78,8 @@ class ProductListAPIView(generics.ListAPIView):
 product_list_API_view = ProductListAPIView.as_view()
 
 class RetrieveUpdateDestroyProductAPIView(generics.RetrieveUpdateDestroyAPIView):
-
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -92,6 +101,8 @@ retrieve_update_destroy_product_view = RetrieveUpdateDestroyProductAPIView.as_vi
 from rest_framework import status
 
 class UserProfileAPIView(generics.ListAPIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'user'
@@ -114,35 +125,35 @@ class UserProfileAPIView(generics.ListAPIView):
 profile_view = UserProfileAPIView.as_view()
 
 class UpdateDeleteProfileAPIView(generics.RetrieveUpdateDestroyAPIView):
-    lookup_field = 'user'
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'username'  # Assuming 'user' is the field to look up the UserProfile
     queryset = UserProfile.objects.all()
     serializer_class = FoodConsumptionSerializer
     renderer_classes = [TemplateHTMLRenderer]
 
+    def get_object(self):
+        username = self.kwargs.get('username')
+        return get_object_or_404(UserProfile, user__username=username)
+
     def get(self, request, *args, **kwargs):
-        username = kwargs.get('user')
-        queryset = UserProfile.objects.filter(user__username=username)
-        instance = get_object_or_404(queryset)
-        print("INSTANCE")
-        print(instance)
+        instance = self.get_object()
         form = UserProfileForm(instance=instance)
         return Response({'form': form}, template_name="products/editprofile.html")
 
-
     def post(self, request, *args, **kwargs):
-        username = kwargs.get('user')
-        queryset = UserProfile.objects.filter(user__username=username)
-        instance = get_object_or_404(queryset)
+        instance = self.get_object()
         form = UserProfileForm(request.POST, instance=instance)
         if form.is_valid():
             form.save()
             return Response({'success': True}, template_name="products/success.html")
 
-
 update_delete_profile_API_view = UpdateDeleteProfileAPIView.as_view()
 
-class FoodConsumptionListAPIView(generics.ListAPIView):
 
+class FoodConsumptionListAPIView(generics.ListAPIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = FoodConsumption.objects.all()
     serializer_class = FoodConsumptionSerializer
     renderer_classes = [TemplateHTMLRenderer]
@@ -174,6 +185,8 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
 daily_consumption_list_view = FoodConsumptionListAPIView.as_view()
 
 class FoodConsumptionCreateAPIView(generics.CreateAPIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = FoodConsumption.objects.all()
     serializer_class = FoodConsumptionSerializer
     renderer_classes = [TemplateHTMLRenderer]
@@ -209,6 +222,8 @@ food_consumption_create_view = FoodConsumptionCreateAPIView.as_view()
 
 
 class FoodConsumptionUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = FoodConsumption.objects.all()
     serializer_class = FoodConsumptionSerializer
     renderer_classes = [TemplateHTMLRenderer]
