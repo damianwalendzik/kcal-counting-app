@@ -7,7 +7,7 @@ Welcome
 <div class="block-content-profile">
     SUCCESS
     {{ request.user.username }}
-    <a href="#">back to profile view</a>
+    <a href="{% url 'profile_view' username=request.user.username %}">back to profile view</a>
 </div>
 SUCCESS
 {% endblock %}

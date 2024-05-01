@@ -58,6 +58,9 @@ def user_logout(request):
     auth.logout(request)
     return redirect("index")
 
+def dashboard(request):
+    return render(request, 'products/calendar.html')
+
 def index(request):
 
     return render(request, 'products/index.html', {
@@ -105,11 +108,11 @@ class UserProfileAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    lookup_field = 'user'
+    lookup_field = 'username'
     renderer_classes = [TemplateHTMLRenderer]
 
     def get(self, request, *args, **kwargs):
-        username = kwargs.get('user')
+        username = kwargs.get('username')
         queryset = UserProfile.objects.filter(user__username=username)
         serializer = self.get_serializer(queryset, many=True)
         user_profile_data = serializer.data[0]
