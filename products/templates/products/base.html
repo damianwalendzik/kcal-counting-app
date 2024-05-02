@@ -14,7 +14,7 @@
         <div class="navbar container">
             <a href="#" class="link new-item-link">New Item</a>
             <a href="#" class="link browse-link">Browse</a>
-            <a href="{% url 'dashboard' %}" class="link dashboard-link">Dashboard</a> 
+            <a href="{% url 'dashboard' request.user.username %}" class="link dashboard-link">Dashboard</a> 
             {% if user.is_authenticated %}
                 <a href="{% url 'profile_view' user.username %}" class="link login-link">Profile {{ user.username }}</a>
                 <a href="{% url 'logout' %}" class="link logout-link">Log out</a> 

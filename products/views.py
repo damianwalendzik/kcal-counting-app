@@ -3,7 +3,7 @@ from .models import Product, UserProfile, FoodConsumption
 from .serializers import ProductSerializer, UserProfileSerializer, FoodConsumptionSerializer
 from rest_framework import generics
 from rest_framework.response import Response
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -58,8 +58,29 @@ def user_logout(request):
     auth.logout(request)
     return redirect("index")
 
-def dashboard(request):
-    return render(request, 'products/calendar.html')
+def dashboard(request, username):
+        profile = UserProfile.objects.filter(user=request.user)[0]
+        kcal_requirement = profile.daily_kcal_requirement
+
+        start_date = datetime.now() - timedelta(days=90)
+        end_date = datetime.now() + timedelta(days=30)
+        date_list = []
+        current_date = start_date
+        while current_date <=end_date:
+            date_list.append(current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+
+        kcal_consumed_on_date = {}
+        for dates in date_list:
+            profile.date = dates
+            kcal_consumed_on_date[dates]=profile.calories_consumed_on_date
+        print(kcal_consumed_on_date)
+        context = {'username': username,
+                   'kcal_requirement': kcal_requirement,
+                   'kcal_consumed_on_date': kcal_consumed_on_date
+                   }
+        print(context)
+        return render(request, 'products/calendar.html', context=context)
 
 def index(request):
 
