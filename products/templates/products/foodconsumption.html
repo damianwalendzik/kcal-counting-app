@@ -1,32 +1,39 @@
+
 {% extends 'products/base.html' %}
 {% block title %}
 Welcome
 {% endblock %}
 
 {% block content %}
-<h1>Daily meal view</h1>
-<div class="bg-blue-500" style="margin-bottom: 20px;"></div>
-    <ul class="bg-blue-500" style="margin-bottom: 20px;"></ul>
-    {% for food_consumption in food_consumption_list %}
-    <div style="margin-bottom: 20px;">
-        <strong>Product name</strong>:<a href="{% url 'update-meal' username=user date=date pk=food_consumption.pk %}" class="px-6 py-3 text-lg font-semibold bg-yellow-500 text-white rounded-xl hover:bg-orange-400">{{ food_consumption.product_name }}</a><br>
-        <strong>amount consumed</strong>:{{ food_consumption.amount_consumed }}<br>
-        <strong>date consumed</strong>:{{ food_consumption.date_consumed }}<br>
-        <strong>kcal consumed</strong>:{{ food_consumption.consumed_kcal }}<br><br>
-        <form method="post" action="{% url 'delete-meal' username=user date=date pk=food_consumption.pk %}">
-            {% csrf_token %}
-            <input type="hidden" name="_method" value="DELETE">
-            <button type="submit" class="px-6 py-3 text-lg font-semibold bg-red-500 text-white rounded-xl hover:bg-red-400">Delete</button>
-        </form>
-    </div>
-    {% endfor %}
+<div class="block-content-profile">
+  {% for food_consumption in food_consumption_list %}
+  <div class="product">
+    <strong>Product name</strong>:{{ food_consumption.product_name }}<br>
+    <strong>amount consumed</strong>:{{ food_consumption.amount_consumed }}<br>
+    <strong>date consumed</strong>:{{ food_consumption.date_consumed }}<br>
+    <strong>kcal consumed</strong>:{{ food_consumption.consumed_kcal }}<br><br>
+    <form method="post" action="{% url 'delete-meal' username=user date=date pk=food_consumption.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="DELETE">
+        <button id="deleteButton" type="submit" >
+            Delete
+        </button>
+        <a href="{% url 'update-meal' username=user date=date pk=food_consumption.pk %}">      
+            <button id="editButton">
+                Edit 
+        </button></a>
 
+    </form>
+  </div>
+  {% endfor %}
+  <div>
+    <a href="{% url 'create-meal' user date %}" class="add-product-link">
+        <span class="icon">+</span> Add Product
+    </a><br>
 
-        {{ user }} ate {{ calories_eaten }} kcal on {{ date }}.<br>
-        {{ user }} have {{ calories_left }} calories left to eat.<br>
-    </ul>
-</div>
-<div class="space-x-6">
-    <a href="{% url 'create-meal' user date %}" class="px-6 py-3 text-lg font-semibold bg-green-500 text-white rounded-xl hover:bg-teal-400">Add Product</a>
+    {{ user }} ate {{ calories_eaten }} kcal on {{ date }}.<br>
+    {{ user }} have {{ calories_left }} calories left to eat.<br>
+  </div>
+
   </div>
 {% endblock %}

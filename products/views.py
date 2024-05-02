@@ -74,12 +74,10 @@ def dashboard(request, username):
         for dates in date_list:
             profile.date = dates
             kcal_consumed_on_date[dates]=profile.calories_consumed_on_date
-        print(kcal_consumed_on_date)
         context = {'username': username,
                    'kcal_requirement': kcal_requirement,
                    'kcal_consumed_on_date': kcal_consumed_on_date
                    }
-        print(context)
         return render(request, 'products/calendar.html', context=context)
 
 def index(request):

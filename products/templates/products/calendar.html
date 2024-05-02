@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{% static 'products/css/calendar.css' %}">{% endblock %}
 
 {% block calendar %} 
+
     <div id="container">
       <div id="header">
         <div id="monthDisplay"></div>
@@ -45,7 +46,12 @@
     </div>
 
     <div id="modalBackDrop"></div>
+    <script type="text/javascript">
+        const kcalConsumedOnDate = {{ kcal_consumed_on_date|safe }};
+    </script>
+    <script src="{% static 'products/css/calendar.js' %}" 
+    kcal_requirement="{{ kcal_requirement }}">
+</script>
 
-    <script src="{% static 'products/css/calendar.js' %}"></script>
 
 {% endblock %}

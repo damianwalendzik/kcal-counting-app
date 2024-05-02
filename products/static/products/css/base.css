@@ -303,15 +303,7 @@ button {
   .day + #currentDay {
     background-color:#e8f4fa;
   }
-  .event {
-    font-size: 10px;
-    padding: 3px;
-    background-color: #58bae4;
-    color: white;
-    border-radius: 5px;
-    max-height: 55px;
-    overflow: hidden;
-  }
+
   .padding {
     cursor: default !important;
     background-color: #FFFCFF !important;
@@ -340,11 +332,19 @@ button {
     border: none;
     box-shadow: 0px 0px 3px gray;
   }
-  #eventTitleInput.error {
-    border: 2px solid red;
+
+  #deleteButton {
+      background-color: #d36c6c;
+    }
+  #deleteButton:hover {
+    background-color: #cc0000;
   }
-  #cancelButton, #deleteButton {
-    background-color: #d36c6c;
+
+  #editButton {
+    background-color: orange;
+  }
+  #editButton:hover {
+    background-color: #cc8400;
   }
   #saveButton, #closeButton {
     background-color: #92a1d1;
@@ -352,6 +352,7 @@ button {
   #eventText {
     font-size: 14px;
   }
+
   #modalBackDrop {
     display: none;
     top: 0px;
@@ -362,3 +363,36 @@ button {
     position: absolute;
     background-color: rgba(0,0,0,0.8);
   }
+
+.product {
+  margin: 5px;
+  border: 2px solid;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.add-product-link {
+  display: inline-block;
+  padding: 10px 20px; /* Adjust padding as needed */
+  background-color: #4CAF50; /* Green background color */
+  color: white;
+  text-decoration: none;
+  border-radius: 5px; /* Rounded corners */
+  margin:15px;
+}
+
+.add-product-link:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+/* Style for the plus icon */
+.add-product-link .icon {
+  margin-right: 5px; /* Spacing between icon and text */
+}
+
+/* SVG icon size and color */
+.add-product-link .icon svg {
+  width: 16px;
+  height: 16px;
+  fill: white; /* Icon color */
+}
