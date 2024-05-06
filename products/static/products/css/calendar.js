@@ -55,9 +55,8 @@ function load() {
             const dayOfMonth = i - paddingDays;
             daySquare.innerText = dayOfMonth;
 
-            // Check if the formattedDate matches any date key in kcal_consumed_on_date
             const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${dayOfMonth.toString().padStart(2, '0')}`;
-            const value = kcalConsumedOnDate[formattedDate] || 0; // Default value is 0 if no data for the date
+            const value = kcalConsumedOnDate[formattedDate] || 0; 
             const output = value.toFixed(0).toString() + " / " + kcalRequirement.split('.')[0];
             const additionalDataSpan = document.createElement('span');
             additionalDataSpan.textContent = output;

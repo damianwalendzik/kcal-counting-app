@@ -75,13 +75,30 @@ class ProductForm(forms.ModelForm):
 
 
 class FoodConsumptionForm(forms.ModelForm):
+    product_name = forms.CharField(max_length=100, label='Product Name')
+
     class Meta:
         model = FoodConsumption
         fields = [
-            'product',
+            'product_name',
             'amount_consumed',
         ]
+    def clean(self):
+        cleaned_data = super().clean()
+        product_name = cleaned_data.get("product_name")
 
+        if not product_name:
+            raise forms.ValidationError("Please enter a product name.")
+        
+        try:
+            product = Product.objects.get(name=product_name)
+
+        except Product.DoesNotExist:
+            raise forms.ValidationError("This product does not exist.")
+        
+        return cleaned_data
+
+    
 class FoodEditForm(forms.ModelForm):
     class Meta:
         model = FoodConsumption

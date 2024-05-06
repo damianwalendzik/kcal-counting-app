@@ -1,0 +1,48 @@
+{% extends 'products/base.html' %}
+{% block title %}
+Hello World
+{% endblock %}
+
+{% block content %}
+<div class="block-content-profile">
+    <input type="text" id="search-input">
+    <ul id="search-results"></ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var searchInput = document.getElementById('search-input');
+            var searchResults = document.getElementById('search-results');
+            var username = "{{ request.user.username }}";
+            searchInput.addEventListener('input', function() {
+                var query = this.value.trim();
+                if (query.length > 2) { 
+                    var url = `/api/profile/${username}/food_consumption/search/autocomplete/?query=`;
+
+                    fetch(url + query)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data)
+
+                            displayResults(data.results);
+                        })
+                        .catch(error => console.error('Error:', error));
+                } else {
+                    clearResults();
+                }
+            });
+
+            function displayResults(results) {
+                searchResults.innerHTML = '';
+                results.forEach(function(result) {
+                    var li = document.createElement('li');
+                    li.textContent = result;
+                    searchResults.appendChild(li);
+                });
+            }
+
+            function clearResults() {
+                searchResults.innerHTML = '';
+            }
+        });
+    </script>
+{% endblock %}

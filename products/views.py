@@ -10,11 +10,14 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm, CreateUserForm, LoginForm
 from django.utils import timezone
 from django.contrib import auth
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse, JsonResponse
+from django.utils.dateparse import parse_date
+from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
+
 
 def register(request):
     form = CreateUserForm()
@@ -120,7 +123,6 @@ class RetrieveUpdateDestroyProductAPIView(generics.RetrieveUpdateDestroyAPIView)
     
 retrieve_update_destroy_product_view = RetrieveUpdateDestroyProductAPIView.as_view()
 
-from rest_framework import status
 
 class UserProfileAPIView(generics.ListAPIView):
     authentication_classes = [SessionAuthentication]
@@ -206,6 +208,7 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
 
 daily_consumption_list_view = FoodConsumptionListAPIView.as_view()
 
+
 class FoodConsumptionCreateAPIView(generics.CreateAPIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -218,12 +221,17 @@ class FoodConsumptionCreateAPIView(generics.CreateAPIView):
         username = kwargs.get('username')
         user = get_object_or_404(User, username=username)
         date_str = kwargs.get('date')
+        date = parse_date(date_str)
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        form = FoodConsumptionForm(initial=
-                                   {'user': self.request.user, 
-                                    'timestamp': timezone.now().strftime("%Y-%m-%d %H:%M:%S"), 
-                                    'date_consumed': date})
-        return Response({'form': form, 'username': username, 'date': date}, template_name="products/addmeal.html")
+        
+        
+        form = FoodConsumptionForm(initial={
+            'user': self.request.user, 
+            'timestamp': timezone.now().strftime("%Y-%m-%d %H:%M:%S"), 
+            'date_consumed': date
+        })
+        context = {'form': form, 'username': username, 'date': date}
+        return render(request, 'products/addmeal.html', context)
 
     def post(self, request, *args, **kwargs):
         username = kwargs.get('username')
@@ -236,12 +244,11 @@ class FoodConsumptionCreateAPIView(generics.CreateAPIView):
             instance.user = user
             instance.date_consumed = date
             instance.save()
-            return Response({'success': True}, template_name="products/success.html")
+            return HttpResponse('<h1>Success</h1>')
         else:
-            return Response({'error': 'Form data is not valid.'}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse('<h1>Error: Form data is not valid</h1>', status=400)
 
 food_consumption_create_view = FoodConsumptionCreateAPIView.as_view()
-
 
 class FoodConsumptionUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [SessionAuthentication]
@@ -294,3 +301,20 @@ class FoodConsumptionUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 food_consumption_update_destroy_view = FoodConsumptionUpdateDestroyAPIView.as_view()
+
+
+@login_required
+def search_product(request, username):
+    return render(request, 'products/search-product.html')
+
+# @login_required
+# def search_product_autocomplete_endpoint(request, username):
+#     query = request.GET.get('query', '')
+#     results = []
+#     if query:
+#         products = Product.objects.filter(name__icontains=query)[:5]
+#         results = [product.name for product in products]
+
+#     return JsonResponse({'results': results})
+def search_product_autocomplete_endpoint(request, username):
+    return JsonResponse({'data': 1})

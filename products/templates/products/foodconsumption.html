@@ -27,7 +27,7 @@ Welcome
   </div>
   {% endfor %}
   <div>
-    <a href="{% url 'create-meal' user date %}" class="add-product-link">
+    <a href="{% url 'search_product' username=request.user.username %}" class="add-product-link">
         <span class="icon">+</span> Add Product
     </a><br>
 
