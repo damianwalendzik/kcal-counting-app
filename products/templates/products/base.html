@@ -12,7 +12,7 @@
     <nav class="navbar">
         <a href="/" class="navbar text header">Kcal counting app</a>
         <div class="navbar container">
-            <a href="#" class="link new-item-link">New Item</a>
+            <a href="{% url 'create-product' %}" class="link new-item-link">New Item</a>
             <a href="#" class="link browse-link">Browse</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' request.user.username %}" class="link dashboard-link">Dashboard</a> 
@@ -32,10 +32,13 @@
 
             {% block content %}
             {% endblock %}
+        
+    {% if show_container %}
         <div id="container">
             {% block calendar %}
             {% endblock %}
         </div>
+    {% endif %}
 
 
     </div>

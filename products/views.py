@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
-from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm, CreateUserForm, LoginForm
+from .forms import UserProfileForm, FoodConsumptionForm, FoodEditForm, CreateUserForm, LoginForm, ProductForm
 from django.utils import timezone
 from django.contrib import auth
 from django.shortcuts import render, redirect
@@ -16,7 +16,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse, JsonResponse
 from django.utils.dateparse import parse_date
 from django.contrib.auth.decorators import login_required
-from django.template.loader import render_to_string
+from urllib.parse import unquote
+
 
 
 def register(request):
@@ -79,7 +80,8 @@ def dashboard(request, username):
             kcal_consumed_on_date[dates]=profile.calories_consumed_on_date
         context = {'username': username,
                    'kcal_requirement': kcal_requirement,
-                   'kcal_consumed_on_date': kcal_consumed_on_date
+                   'kcal_consumed_on_date': kcal_consumed_on_date,
+                   'show_container': True,
                    }
         return render(request, 'products/calendar.html', context=context)
 
@@ -123,6 +125,32 @@ class RetrieveUpdateDestroyProductAPIView(generics.RetrieveUpdateDestroyAPIView)
     
 retrieve_update_destroy_product_view = RetrieveUpdateDestroyProductAPIView.as_view()
 
+def create_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.instance.created_by = request.user
+            form.save()
+            return redirect('index') 
+    else:
+        form = ProductForm()
+    return render(request, 'products/createproduct.html', {'form': form})
+
+def add_product(request, username):
+    if request.method == 'POST':
+        form = FoodConsumptionForm(request.POST)
+        if form.is_valid():
+            form.instance.user = request.user
+            product_name = request.GET.get('product')
+            decoded_product_name = unquote(product_name)
+            form.instance.product = decoded_product_name
+            form.instance.date_consumed = UserProfile.objects.filter(user=request.user)[0].date
+            form.save()
+            return redirect('consumption_view')
+        else:
+            form = FoodConsumptionForm()
+
+    return render(request, 'products/addproduct.html', {'form': form})
 
 class UserProfileAPIView(generics.ListAPIView):
     authentication_classes = [SessionAuthentication]
@@ -307,14 +335,13 @@ food_consumption_update_destroy_view = FoodConsumptionUpdateDestroyAPIView.as_vi
 def search_product(request, username):
     return render(request, 'products/search-product.html')
 
-# @login_required
-# def search_product_autocomplete_endpoint(request, username):
-#     query = request.GET.get('query', '')
-#     results = []
-#     if query:
-#         products = Product.objects.filter(name__icontains=query)[:5]
-#         results = [product.name for product in products]
-
-#     return JsonResponse({'results': results})
+@login_required
 def search_product_autocomplete_endpoint(request, username):
-    return JsonResponse({'data': 1})
+    query = request.GET.get('query', '')
+    results = []
+    if query:
+        products = Product.objects.filter(name__icontains=query)[:5]
+        results = [product.name for product in products]
+
+    return JsonResponse({'results': results})
+
