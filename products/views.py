@@ -13,10 +13,11 @@ from django.contrib import auth
 from django.shortcuts import render, redirect
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils.dateparse import parse_date
 from django.contrib.auth.decorators import login_required
 from urllib.parse import unquote
+from django.urls import reverse
 
 
 
@@ -138,18 +139,22 @@ def create_product(request):
 
 def add_product(request, username):
     if request.method == 'POST':
-        form = FoodConsumptionForm(request.POST)
+        form = FoodEditForm(request.POST)
         if form.is_valid():
             form.instance.user = request.user
             product_name = request.GET.get('product')
-            decoded_product_name = unquote(product_name)
-            form.instance.product = decoded_product_name
+            form.instance.product = Product.objects.filter(name=unquote(product_name))[0]
             form.instance.date_consumed = UserProfile.objects.filter(user=request.user)[0].date
             form.save()
-            return redirect('consumption_view')
-        else:
-            form = FoodConsumptionForm()
+            date_param = UserProfile.objects.filter(user__username=username)[0].date
+            redirect_url = reverse('consumption_view', kwargs={'username': username, 'date': date_param})
+            return HttpResponseRedirect(redirect_url)
 
+    else:
+        product_name = unquote(request.GET.get('product'))
+        initial_data = {}
+        initial_data['product_name'] = product_name
+        form = FoodEditForm(initial=initial_data)
     return render(request, 'products/addproduct.html', {'form': form})
 
 class UserProfileAPIView(generics.ListAPIView):

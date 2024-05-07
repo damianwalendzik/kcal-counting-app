@@ -39,7 +39,7 @@ Hello World
                     var li = document.createElement('li');
                     li.textContent = result;
                     li.addEventListener('click', function() {
-                window.location.href = `/api/products/${username}/food_consumption/add?product=${result}`;
+                window.location.href = `/api/profile/${username}/food_consumption/add?product=${encodeURIComponent(result)}`;
             });
                     searchResults.appendChild(li);
                 });
