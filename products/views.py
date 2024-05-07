@@ -228,12 +228,21 @@ class FoodConsumptionListAPIView(generics.ListAPIView):
         food_consumption_data_list = serializer.data
         calories_eaten = UserProfile.objects.filter(user=user)[0].calories_consumed_on_date
         calories_left = UserProfile.objects.filter(user=user)[0].calories_left
+        daily_kcal_requirement = UserProfile.objects.filter(user=user)[0].daily_kcal_requirement
+        total_macros = {'proteins': 0, 'fats': 0, 'carbs': 0}
+        for item in food_consumption_data_list:
+            total_macros['proteins']+=item['proteins']
+            total_macros['fats']+=item['fats']
+            total_macros['carbs']+=item['carbs']
+        print(total_macros)
         context = {'food_consumption_list': food_consumption_data_list, 
                    'user': user, 
                    'calories_eaten': calories_eaten,
                    'date': date,
                    'calories_left': calories_left,
                    'pk':pk,
+                   'total_macros': total_macros,
+                   'daily_kcal_requirement': daily_kcal_requirement,
                    }
         print(context)
         return Response(context)

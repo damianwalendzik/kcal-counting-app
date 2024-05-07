@@ -76,11 +76,24 @@ class UserProfile(models.Model):
             total=Sum(ExpressionWrapper(F('product__total_kcal') * F('amount_consumed')/100,output_field=FloatField())))['total'] or 0
         return consumed_kcal
 
-
     def calories_left(self):
         calories_left = self.daily_kcal_requirement - self.calories_consumed_on_date
         return calories_left
 
+    @property
+    def protein_req(self):
+        daily_protein_intake_high = self.daily_kcal_requirement * 0,35
+        return daily_protein_intake_high
+    
+    @property
+    def fats_req(self):
+        fats_protein_intake_high = self.daily_kcal_requirement * 0,35
+        return fats_protein_intake_high
+    
+    @property
+    def carbs_req(self):
+        carbs_protein_intake_high = self.daily_kcal_requirement * 0,65
+        return carbs_protein_intake_high
     
 class Product(models.Model):
     '''
@@ -113,6 +126,7 @@ class FoodConsumption(models.Model):
         return self.product.total_kcal * self.amount_consumed / 100
     
 
+    
 class Vitamins(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

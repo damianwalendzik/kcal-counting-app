@@ -47,6 +47,12 @@ class FoodConsumptionSerializer(serializers.ModelSerializer):
     #user = UserProfileSerializer(many=False)
     product_name = serializers.SerializerMethodField()
     consumed_kcal = serializers.SerializerMethodField()
+    proteins = serializers.SerializerMethodField()
+    fats = serializers.SerializerMethodField()
+    carbs = serializers.SerializerMethodField()
+
+
+
     class Meta:
         model = FoodConsumption
         fields = [
@@ -58,6 +64,9 @@ class FoodConsumptionSerializer(serializers.ModelSerializer):
             'timestamp',
             'date_consumed',
             'consumed_kcal',
+            'proteins',
+            'fats',
+            'carbs',
         ]
 
     def get_product_name(self, obj):
@@ -66,6 +75,13 @@ class FoodConsumptionSerializer(serializers.ModelSerializer):
     def get_consumed_kcal(self, obj):
         return obj.consumed_kcal
     
+    def get_proteins(self, obj):
+        return obj.product.proteins * obj.amount_consumed / 100
 
+    def get_fats(self, obj):
+        return obj.product.fats * obj.amount_consumed / 100
+
+    def get_carbs(self, obj):
+        return obj.product.carbohydrates * obj.amount_consumed / 100
     
         
